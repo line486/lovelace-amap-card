@@ -1,0 +1,8 @@
+dist
+node_modules
+coverage
+.next
+*.hbs
+*.log
+package.json
+tsconfig.json
