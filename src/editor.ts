@@ -16,6 +16,9 @@ export const defaultConfig: AMapCardConfig = {
   pitch: 30,
   zoom: 15,
   entities: [],
+  showHistory: false,
+  historyHours: 24,
+  historyWidth: 3,
 };
 
 @customElement("amap-card-editor")
@@ -26,17 +29,31 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
 
   setConfig(config: AMapCardConfig): void {
     if (!this._isInitialized) {
-      // 初始化默认值
-      this._config = { ...defaultConfig, ...config };
+      // 初始化默认值，并确保 entities 是正确的格式
+      this._config = {
+        ...defaultConfig,
+        ...config,
+        // 兼容旧格式：如果是对象数组，提取 entity 字段
+        entities: Array.isArray(config.entities)
+          ? config.entities.map((e: any) => (typeof e === "string" ? e : e.entity))
+          : [],
+      };
       this._isInitialized = true;
     } else {
-      this._config = config;
+      // 确保更新时 entities 也是正确格式
+      this._config = {
+        ...config,
+        entities: Array.isArray(config.entities)
+          ? config.entities.map((e: any) => (typeof e === "string" ? e : e.entity))
+          : [],
+      };
     }
   }
 
   protected render() {
     if (!this.hass || !this._config) return html``;
     const customLocalize = setupCustomLocalize(this.hass);
+
     const schema: any[] = [
       {
         name: "key",
@@ -89,13 +106,25 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
         },
         label: customLocalize("editor.appearance.pitch"),
       },
-      // {
-      //   name: "zoom",
-      //   selector: {
-      //     number: { min: 3, max: 20, step: 1, mode: "slider" },
-      //   },
-      //   label: customLocalize("editor.appearance.zoom"),
-      // },
+      {
+        name: "showHistory",
+        selector: { boolean: {} },
+        label: customLocalize("editor.history.showHistory"),
+      },
+      {
+        name: "historyHours",
+        selector: {
+          number: { min: 1, max: 168, step: 1, mode: "slider" },
+        },
+        label: customLocalize("editor.history.hours"),
+      },
+      {
+        name: "historyWidth",
+        selector: {
+          number: { min: 1, max: 10, step: 1, mode: "slider" },
+        },
+        label: customLocalize("editor.history.width"),
+      },
       {
         name: "entities",
         selector: { entity: { multiple: true, domain: ["zone", "device_tracker", "person"] } },

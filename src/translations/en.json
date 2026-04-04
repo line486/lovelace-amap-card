@@ -45,6 +45,12 @@
         "MapType": "Map Type Control"
       }
     },
-    "entity": "Entity"
+    "entity": "Entity",
+    "addEntity": "Add Entity",
+    "history": {
+      "showHistory": "Show History Track",
+      "hours": "History Duration (Hours)",
+      "width": "Track Line Width"
+    }
   }
 }

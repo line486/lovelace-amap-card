@@ -15,5 +15,8 @@ export interface AMapCardConfig extends LovelaceCardConfig {
   darkTheme: AMapTheme;
   controls: AMapControl[];
   zoom: number;
-  entities: [];
+  entities: string[];
+  showHistory?: boolean;
+  historyHours?: number;
+  historyWidth?: number;
 }

@@ -45,6 +45,12 @@
         "MapType": "图层切换控件"
       }
     },
-    "entity": "实体"
+    "entity": "实体",
+    "addEntity": "添加实体",
+    "history": {
+      "showHistory": "显示历史轨迹",
+      "hours": "历史轨迹时长(小时)",
+      "width": "轨迹线宽"
+    }
   }
 }
