@@ -12,12 +12,17 @@ import { amapCardStyle } from "./styles";
 import { AMAP_CONTROLS_POSE } from "./const";
 
 // This puts your card into the UI card picker dialog
+const _getCardInfo = () => {
+  const browserLang = navigator.language;
+  const isZh = browserLang.startsWith("zh");
+  return {
+    type: "amap-card",
+    name: isZh ? "高德地图" : "AMap",
+    description: isZh ? "在 Home Assistant 中显示高德地图。" : "Display AMap in Home Assistant.",
+  };
+};
 (window as any).customCards = (window as any).customCards || [];
-(window as any).customCards.push({
-  type: "amap-card",
-  name: "AMap Card",
-  description: "高德地图卡片。",
-});
+(window as any).customCards.push(_getCardInfo());
 
 @customElement("amap-card")
 export class AMapCard extends LitElement implements LovelaceCard {

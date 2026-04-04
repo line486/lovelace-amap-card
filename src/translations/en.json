@@ -1,23 +1,18 @@
 {
   "card": {
+    "name": "AMap Card",
+    "description": "Display AMap in Home Assistant.",
     "not_found": "Entity not found",
     "config_not_found": "Configuration not found",
     "Key_not_found": "No key or security key is configured for AMap"
   },
   "editor": {
     "title": "Title",
-    "api": {
-      "title": "API Deployment",
-      "key": "Key",
-      "security": "Security Key"
-    },
+    "api": { "title": "API Deployment", "key": "Key", "security": "Security Key" },
     "appearance": {
       "title": "Appearance",
       "theme": {
-        "mode": {
-          "light": "Daytime Theme",
-          "dark": "Dark Theme"
-        },
+        "mode": { "light": "Daytime Theme", "dark": "Dark Theme" },
         "options": {
           "normal": "Normal",
           "dark": "Dark",

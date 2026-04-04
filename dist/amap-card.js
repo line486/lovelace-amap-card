@@ -110,6 +110,8 @@ const AMAP_CONTROLS_POSE = {
 };
 
 var card$1 = {
+	name: "AMap Card",
+	description: "Display AMap in Home Assistant.",
 	not_found: "Entity not found",
 	config_not_found: "Configuration not found",
 	Key_not_found: "No key or security key is configured for AMap"
@@ -176,6 +178,8 @@ var en$1 = /*#__PURE__*/Object.freeze({
 });
 
 var card = {
+	name: "高德地图卡片",
+	description: "在 Home Assistant 中显示高德地图。",
 	not_found: "未找到实体",
 	config_not_found: "未找到配置",
 	Key_not_found: "未配置高德地图的 Key 或安全密钥"
@@ -257,9 +261,16 @@ function getTranslatedString(key, lang) {
         return undefined;
     }
 }
+function getBrowserLanguage() {
+    const browserLang = navigator.language;
+    if (browserLang.startsWith("zh")) {
+        return "zh-Hans";
+    }
+    return DEFAULT_LANG;
+}
 function setupCustomLocalize(hass) {
     return function (key) {
-        const lang = hass?.locale.language ?? DEFAULT_LANG;
+        const lang = hass?.locale.language ?? getBrowserLanguage();
         let translated = getTranslatedString(key, lang);
         if (!translated)
             translated = getTranslatedString(key, DEFAULT_LANG);
@@ -1701,12 +1712,17 @@ function amapCardStyle() {
 }
 
 // This puts your card into the UI card picker dialog
+const _getCardInfo = () => {
+    const browserLang = navigator.language;
+    const isZh = browserLang.startsWith("zh");
+    return {
+        type: "amap-card",
+        name: isZh ? "高德地图" : "AMap",
+        description: isZh ? "在 Home Assistant 中显示高德地图。" : "Display AMap in Home Assistant.",
+    };
+};
 window.customCards = window.customCards || [];
-window.customCards.push({
-    type: "amap-card",
-    name: "AMap Card",
-    description: "高德地图卡片。",
-});
+window.customCards.push(_getCardInfo());
 let AMapCard = class AMapCard extends i {
     constructor() {
         super(...arguments);

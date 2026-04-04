@@ -1,23 +1,18 @@
 {
   "card": {
+    "name": "高德地图卡片",
+    "description": "在 Home Assistant 中显示高德地图。",
     "not_found": "未找到实体",
     "config_not_found": "未找到配置",
     "Key_not_found": "未配置高德地图的 Key 或安全密钥"
   },
   "editor": {
     "title": "标题",
-    "api": {
-      "title": "API 配置",
-      "key": "Key",
-      "security": "安全密钥"
-    },
+    "api": { "title": "API 配置", "key": "Key", "security": "安全密钥" },
     "appearance": {
       "title": "外观",
       "theme": {
-        "mode": {
-          "light": "白天主题",
-          "dark": "暗色主题"
-        },
+        "mode": { "light": "白天主题", "dark": "暗色主题" },
         "options": {
           "normal": "标准",
           "dark": "幻影黑",
@@ -47,10 +42,6 @@
     },
     "entity": "实体",
     "addEntity": "添加实体",
-    "history": {
-      "showHistory": "显示历史轨迹",
-      "hours": "历史轨迹时长(小时)",
-      "width": "轨迹线宽"
-    }
+    "history": { "showHistory": "显示历史轨迹", "hours": "历史轨迹时长(小时)", "width": "轨迹线宽" }
   }
 }

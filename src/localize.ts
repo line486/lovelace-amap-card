@@ -20,9 +20,17 @@ function getTranslatedString(key: string, lang: string): string | undefined {
   }
 }
 
+function getBrowserLanguage(): string {
+  const browserLang = navigator.language;
+  if (browserLang.startsWith("zh")) {
+    return "zh-Hans";
+  }
+  return DEFAULT_LANG;
+}
+
 export default function setupCustomLocalize(hass?: HomeAssistant) {
   return function (key: string) {
-    const lang = hass?.locale.language ?? DEFAULT_LANG;
+    const lang = hass?.locale.language ?? getBrowserLanguage();
 
     let translated = getTranslatedString(key, lang);
     if (!translated) translated = getTranslatedString(key, DEFAULT_LANG);
