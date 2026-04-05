@@ -25,12 +25,27 @@ export const AMAP_CONTROLS_POSE = {
   ToolBar: {
     position: {
       right: "16px",
-      bottom: "50px",
+      bottom: "20px",
     },
   },
   Scale: null,
-  ControlBar: null,
-  Geolocation: null,
-  HawkEye: null,
+  ControlBar: {
+    position: {
+      right: "-14px",
+      bottom: "114px",
+    },
+  },
+  Geolocation: {
+    position: {
+      right: "16px",
+      bottom: "90px",
+    },
+  },
+  HawkEye: {
+    position: {
+      left: "0",
+      top: "0",
+    },
+  },
   MapType: null,
 };
