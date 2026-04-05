@@ -71,6 +71,26 @@ export class AMapCard extends LitElement implements LovelaceCard {
       min_rows: 2,
     };
   }
+  
+  /**
+   * 获取视图类型
+   */
+  private get _viewType(): string {
+    let el = this.parentElement;
+    while (el) {
+      if (el.classList?.contains("masonry")) return "masonry";
+      el = el.parentElement;
+    }
+    return "panel";
+  }
+
+  /**
+   * 是否在配置弹窗的预览界面中
+   */
+  private get _isPreview(): boolean {
+    // 检测是否在卡片配置弹窗的预览容器中
+    return !!this.closest(".preview") || !!this.closest(".element-preview");
+  }
 
   connectedCallback() {
     super.connectedCallback();
@@ -127,8 +147,11 @@ export class AMapCard extends LitElement implements LovelaceCard {
       </ha-card>`;
     }
 
-    return html`<ha-card class="amap-card" id="card">
-      <div id="root">
+    return html`<ha-card class="amap-card">
+      <div
+        id="amapContainer"
+        style=${this._isPreview && this._viewType !== "masonry" ? "padding-bottom: 100%;" : ""}
+      >
         <div id="amap"></div>
       </div>
     </ha-card>`;

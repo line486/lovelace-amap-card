@@ -1,4 +1,4 @@
-var version = "0.1.2";
+var version = "0.2.0";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -646,7 +646,7 @@ function amapCardStyle() {
       flex-direction: column;
     }
 
-    #root {
+    #amapContainer {
       position: relative;
       height: 100%;
     }
@@ -1741,13 +1741,32 @@ let AMapCard = class AMapCard extends i {
         };
     }
     getCardSize() {
-        return 4;
+        return 5;
     }
     getGridOptions() {
         return {
             rows: 4,
             min_rows: 2,
         };
+    }
+    /**
+     * 获取视图类型
+     */
+    get _viewType() {
+        let el = this.parentElement;
+        while (el) {
+            if (el.classList?.contains("masonry"))
+                return "masonry";
+            el = el.parentElement;
+        }
+        return "panel";
+    }
+    /**
+     * 是否在配置弹窗的预览界面中
+     */
+    get _isPreview() {
+        // 检测是否在卡片配置弹窗的预览容器中
+        return !!this.closest(".preview") || !!this.closest(".element-preview");
     }
     connectedCallback() {
         super.connectedCallback();
@@ -1798,8 +1817,11 @@ let AMapCard = class AMapCard extends i {
         <ha-alert alert-type="error">${customLocalize("card.Key_not_found")}</ha-alert>
       </ha-card>`;
         }
-        return b `<ha-card class="amap-card" id="card">
-      <div id="root">
+        return b `<ha-card class="amap-card">
+      <div
+        id="amapContainer"
+        style=${this._isPreview && this._viewType !== "masonry" ? "padding-bottom: 100%;" : ""}
+      >
         <div id="amap"></div>
       </div>
     </ha-card>`;

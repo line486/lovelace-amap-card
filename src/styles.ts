@@ -10,7 +10,7 @@ export function amapCardStyle() {
       flex-direction: column;
     }
 
-    #root {
+    #amapContainer {
       position: relative;
       height: 100%;
     }
