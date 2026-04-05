@@ -29,6 +29,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
   static styles = amapCardStyle();
 
   @property({ attribute: false }) public hass!: HomeAssistant;
+  @property({ attribute: false }) public editMode?: boolean;
   @property() private _config!: AMapCardConfig;
 
   private map?: any;
@@ -61,7 +62,14 @@ export class AMapCard extends LitElement implements LovelaceCard {
   }
 
   getCardSize(): number {
-    return 2;
+    return 5;
+  }
+
+  getGridOptions() {
+    return {
+      rows: 4,
+      min_rows: 2,
+    };
   }
 
   connectedCallback() {
@@ -88,7 +96,6 @@ export class AMapCard extends LitElement implements LovelaceCard {
     super.updated(changedProperties);
     // 当配置变化时重新加载地图
     if (changedProperties.has("_config")) {
-      console.log("[AMap Card] 配置已更新，重新加载地图");
       this._mapLoaded = false;
       if (this.map) {
         this.map.destroy();
@@ -120,14 +127,18 @@ export class AMapCard extends LitElement implements LovelaceCard {
       </ha-card>`;
     }
 
-    return html`<ha-card class="amap-card"><div id="amap" tabindex="0"></div></ha-card>`;
+    return html`<ha-card class="amap-card" id="card">
+      <div id="root">
+        <div id="amap"></div>
+      </div>
+    </ha-card>`;
   }
 
   private async _loadMap() {
     if (this._mapLoaded) return;
 
     if (!this._config.key || !this._config.security) {
-      console.warn("No key or security key is configured for AMap");
+      console.warn("[AMap Card] 未配置 Key 或安全密钥");
       return;
     }
 
@@ -165,19 +176,9 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
       const fitView: any[] = [];
 
-      console.log("[AMap Card] 配置信息:", {
-        entities: this._config.entities,
-        showHistory: this._config.showHistory,
-        historyHours: this._config.historyHours,
-        historyWidth: this._config.historyWidth,
-      });
-
       // 如果开启了历史轨迹，先绘制轨迹
       if (this._config.showHistory) {
-        console.log("[AMap Card] 显示历史轨迹已启用");
         await this._loadHistoryTracks(AMap, fitView);
-      } else {
-        console.log("[AMap Card] 显示历史轨迹未启用");
       }
 
       // 添加实体当前位置
@@ -196,54 +197,37 @@ export class AMapCard extends LitElement implements LovelaceCard {
       this.map.setFitView(fitView);
       this._mapLoaded = true;
     } catch (e) {
-      console.error("Failed to load AMap:", e);
+      console.error("[AMap Card] 加载地图失败:", e);
     }
   }
 
   private async _loadHistoryTracks(AMap: any, fitView: any[]) {
-    console.log("[AMap Card] 开始加载历史轨迹");
     const historyHours = this._config.historyHours || 24;
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - historyHours * 60 * 60 * 1000);
 
-    console.log(
-      `[AMap Card] 查询时间范围: ${startTime.toISOString()} 到 ${endTime.toISOString()} (${historyHours}小时)`
-    );
-
     for (const entityId of this._config.entities) {
       const stateObj = this.hass!.states[entityId];
       if (!stateObj) {
-        console.warn(`[AMap Card] 实体 ${entityId} 不存在`);
         continue;
       }
 
-      console.log(`[AMap Card] 正在获取 ${entityId} 的历史数据...`);
-
       try {
         const historyData = await this._fetchHistoryData(entityId, startTime, endTime);
-        console.log(`[AMap Card] ${entityId} 获取到 ${historyData.length} 条历史记录`);
 
         if (!historyData || historyData.length === 0) {
-          console.warn(`[AMap Card] ${entityId} 没有历史数据`);
           continue;
         }
 
-        // 输出历史位置数据
-        console.log(`[AMap Card] ${entityId} 的历史位置数据:`, historyData);
-
         const path = this._processHistoryData(historyData);
-        console.log(`[AMap Card] ${entityId} 处理后得到 ${path.length} 个有效路径点`, path);
 
         if (path.length < 2) {
-          console.warn(`[AMap Card] ${entityId} 有效路径点不足，无法绘制轨迹`);
           continue;
         }
 
         // 使用默认颜色
         const color = "#1791fc";
         const width = this._config.historyWidth || 3;
-
-        console.log(`[AMap Card] ${entityId} 绘制轨迹: 颜色=${color}, 宽度=${width}`);
 
         const polyline = new AMap.Polyline({
           path: path,
@@ -256,7 +240,6 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
         this.map.add(polyline);
         fitView.push(polyline);
-        console.log(`[AMap Card] ${entityId} 轨迹绘制完成`);
       } catch (error) {
         console.error(`[AMap Card] 加载 ${entityId} 的历史数据失败:`, error);
       }
@@ -274,11 +257,8 @@ export class AMapCard extends LitElement implements LovelaceCard {
     // 使用 Home Assistant 的 history API
     const path = `history/period/${startISO}?filter_entity_id=${entityId}&end_time=${endISO}`;
 
-    console.log(`[AMap Card] 请求历史数据路径: ${path}`);
-
     try {
       const response = await (this.hass as any).callApi("GET", path);
-      console.log(`[AMap Card] API 响应:`, response);
 
       if (Array.isArray(response) && response.length > 0) {
         return response[0] || [];
@@ -301,13 +281,10 @@ export class AMapCard extends LitElement implements LovelaceCard {
         );
         if (gcjLng && gcjLat) {
           path.push([gcjLng, gcjLat]);
-        } else {
-          console.warn(`[AMap Card] 坐标转换失败:`, state);
         }
       }
     }
 
-    console.log(`[AMap Card] 成功处理 ${path.length} 个坐标点`);
     return path;
   }
 

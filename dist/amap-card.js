@@ -638,30 +638,31 @@ function getMapControls(controls) {
 
 function amapCardStyle() {
     return i$3 `
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-      min-width: 120px;
-      min-height: 120px;
-    }
-
     .amap-card {
       overflow: hidden;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      box-sizing: border-box;
-      width: 100%;
+    }
+
+    #root {
+      position: relative;
       height: 100%;
     }
 
     #amap {
-      padding: 0;
-      margin: 0;
       width: 100%;
       height: 100%;
-      min-height: 120px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACC2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOlJlc29sdXRpb25Vbml0PjI8L3RpZmY6UmVzb2x1dGlvblVuaXQ+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjE8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDx0aWZmOlBob3RvbWV0cmljSW50ZXJwcmV0YXRpb24+MjwvdGlmZjpQaG90b21ldHJpY0ludGVycHJldGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KD0UqkwAAAf1JREFUeAHtmtGpAkEQBE9TMAi/zMb8MzCGU/97Ye8QunDrfQ7qNFUMS8Pbtom/fd8fEx/b/FymdIDL85p/wmmLgEJa5Ad7FTIA0xorpEV+sFchAzCtsUJa5Ad7FTIA0xorpEV+sPcyW1oG33f8WwL3qZ+blebnMs4DXGzqGWFv6hvSYx83KyRi6Q0V0mMfNyskYukNFdJjHzcrJGLpDRXSYx8329QjltrQpp7QH2jWv/5fA5t6EtKc+YY06YfdCglQmiOFNOmH3QoJUJojhTTph90KCVCaI4U06YfdNvUApTiyqSf4NvVEZdGZbwhMvEIUAiMAi+OFKARGABbHC1EIjAAsjk2dJcSmnnzY1BOVRWc+6jDxClEIjAAsjheiEBgBWBwvRCEwArA4/9LUbx+uLxjbM3Fs6omaTT1RWXTmow4TrxCFwAjA4nghCoERgMXxQhQCIwCL8y9NHYb1dBybekJnU09UFp35qMPEK0QhMAKwOF6IQmAEYHG8EIXACMDi2NRZQmzqyYdNPVFZdOajDhOvEIXACMDieCEKgRGAxfFCFAIjAItjU2cJsaknHzb1RGXRmY86TLxCFAIjAIvjhSgERgAWxwtRCIwALI5NnSXEpp582NQTlUVnPuow8QpRCIwALI4XohAYAVgcL0QhMAKwON+m/oRlWjrOG2SeYNIaKe7fAAAAAElFTkSuQmCC);
+      touch-action: none;
+      overflow: hidden;
+      -ms-touch-action: none;
     }
 
     .amap-custom {
@@ -673,15 +674,6 @@ function amapCardStyle() {
     #amap img {
       max-width: none !important;
       max-height: none !important;
-    }
-
-    #amap {
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACC2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOlJlc29sdXRpb25Vbml0PjI8L3RpZmY6UmVzb2x1dGlvblVuaXQ+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjE8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDx0aWZmOlBob3RvbWV0cmljSW50ZXJwcmV0YXRpb24+MjwvdGlmZjpQaG90b21ldHJpY0ludGVycHJldGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KD0UqkwAAAf1JREFUeAHtmtGpAkEQBE9TMAi/zMb8MzCGU/97Ye8QunDrfQ7qNFUMS8Pbtom/fd8fEx/b/FymdIDL85p/wmmLgEJa5Ad7FTIA0xorpEV+sFchAzCtsUJa5Ad7FTIA0xorpEV+sPcyW1oG33f8WwL3qZ+blebnMs4DXGzqGWFv6hvSYx83KyRi6Q0V0mMfNyskYukNFdJjHzcrJGLpDRXSYx8329QjltrQpp7QH2jWv/5fA5t6EtKc+YY06YfdCglQmiOFNOmH3QoJUJojhTTph90KCVCaI4U06YfdNvUApTiyqSf4NvVEZdGZbwhMvEIUAiMAi+OFKARGABbHC1EIjAAsjk2dJcSmnnzY1BOVRWc+6jDxClEIjAAsjheiEBgBWBwvRCEwArA4/9LUbx+uLxjbM3Fs6omaTT1RWXTmow4TrxCFwAjA4nghCoERgMXxQhQCIwCL8y9NHYb1dBybekJnU09UFp35qMPEK0QhMAKwOF6IQmAEYHG8EIXACMDi2NRZQmzqyYdNPVFZdOajDhOvEIXACMDieCEKgRGAxfFCFAIjAItjU2cJsaknHzb1RGXRmY86TLxCFAIjAIvjhSgERgAWxwtRCIwALI5NnSXEpp582NQTlUVnPuow8QpRCIwALI4XohAYAVgcL0QhMAKwON+m/oRlWjrOG2SeYNIaKe7fAAAAAElFTkSuQmCC);
-      //background-color: #f1f1f1;
-      touch-action: none;
-      position: relative;
-      overflow: hidden;
-      -ms-touch-action: none;
     }
 
     .amap-drags,
@@ -1749,7 +1741,13 @@ let AMapCard = class AMapCard extends i {
         };
     }
     getCardSize() {
-        return 2;
+        return 4;
+    }
+    getGridOptions() {
+        return {
+            rows: 4,
+            min_rows: 2,
+        };
     }
     connectedCallback() {
         super.connectedCallback();
@@ -1772,7 +1770,6 @@ let AMapCard = class AMapCard extends i {
         super.updated(changedProperties);
         // 当配置变化时重新加载地图
         if (changedProperties.has("_config")) {
-            console.log("[AMap Card] 配置已更新，重新加载地图");
             this._mapLoaded = false;
             if (this.map) {
                 this.map.destroy();
@@ -1801,13 +1798,17 @@ let AMapCard = class AMapCard extends i {
         <ha-alert alert-type="error">${customLocalize("card.Key_not_found")}</ha-alert>
       </ha-card>`;
         }
-        return b `<ha-card class="amap-card"><div id="amap" tabindex="0"></div></ha-card>`;
+        return b `<ha-card class="amap-card" id="card">
+      <div id="root">
+        <div id="amap"></div>
+      </div>
+    </ha-card>`;
     }
     async _loadMap() {
         if (this._mapLoaded)
             return;
         if (!this._config.key || !this._config.security) {
-            console.warn("No key or security key is configured for AMap");
+            console.warn("[AMap Card] 未配置 Key 或安全密钥");
             return;
         }
         window._AMapSecurityConfig = {
@@ -1839,19 +1840,9 @@ let AMapCard = class AMapCard extends i {
                 });
             }
             const fitView = [];
-            console.log("[AMap Card] 配置信息:", {
-                entities: this._config.entities,
-                showHistory: this._config.showHistory,
-                historyHours: this._config.historyHours,
-                historyWidth: this._config.historyWidth,
-            });
             // 如果开启了历史轨迹，先绘制轨迹
             if (this._config.showHistory) {
-                console.log("[AMap Card] 显示历史轨迹已启用");
                 await this._loadHistoryTracks(AMap, fitView);
-            }
-            else {
-                console.log("[AMap Card] 显示历史轨迹未启用");
             }
             // 添加实体当前位置
             this._config.entities.forEach((entityId) => {
@@ -1869,41 +1860,30 @@ let AMapCard = class AMapCard extends i {
             this._mapLoaded = true;
         }
         catch (e) {
-            console.error("Failed to load AMap:", e);
+            console.error("[AMap Card] 加载地图失败:", e);
         }
     }
     async _loadHistoryTracks(AMap, fitView) {
-        console.log("[AMap Card] 开始加载历史轨迹");
         const historyHours = this._config.historyHours || 24;
         const endTime = new Date();
         const startTime = new Date(endTime.getTime() - historyHours * 60 * 60 * 1000);
-        console.log(`[AMap Card] 查询时间范围: ${startTime.toISOString()} 到 ${endTime.toISOString()} (${historyHours}小时)`);
         for (const entityId of this._config.entities) {
             const stateObj = this.hass.states[entityId];
             if (!stateObj) {
-                console.warn(`[AMap Card] 实体 ${entityId} 不存在`);
                 continue;
             }
-            console.log(`[AMap Card] 正在获取 ${entityId} 的历史数据...`);
             try {
                 const historyData = await this._fetchHistoryData(entityId, startTime, endTime);
-                console.log(`[AMap Card] ${entityId} 获取到 ${historyData.length} 条历史记录`);
                 if (!historyData || historyData.length === 0) {
-                    console.warn(`[AMap Card] ${entityId} 没有历史数据`);
                     continue;
                 }
-                // 输出历史位置数据
-                console.log(`[AMap Card] ${entityId} 的历史位置数据:`, historyData);
                 const path = this._processHistoryData(historyData);
-                console.log(`[AMap Card] ${entityId} 处理后得到 ${path.length} 个有效路径点`, path);
                 if (path.length < 2) {
-                    console.warn(`[AMap Card] ${entityId} 有效路径点不足，无法绘制轨迹`);
                     continue;
                 }
                 // 使用默认颜色
                 const color = "#1791fc";
                 const width = this._config.historyWidth || 3;
-                console.log(`[AMap Card] ${entityId} 绘制轨迹: 颜色=${color}, 宽度=${width}`);
                 const polyline = new AMap.Polyline({
                     path: path,
                     strokeColor: color,
@@ -1914,7 +1894,6 @@ let AMapCard = class AMapCard extends i {
                 });
                 this.map.add(polyline);
                 fitView.push(polyline);
-                console.log(`[AMap Card] ${entityId} 轨迹绘制完成`);
             }
             catch (error) {
                 console.error(`[AMap Card] 加载 ${entityId} 的历史数据失败:`, error);
@@ -1926,10 +1905,8 @@ let AMapCard = class AMapCard extends i {
         const endISO = endTime.toISOString();
         // 使用 Home Assistant 的 history API
         const path = `history/period/${startISO}?filter_entity_id=${entityId}&end_time=${endISO}`;
-        console.log(`[AMap Card] 请求历史数据路径: ${path}`);
         try {
             const response = await this.hass.callApi("GET", path);
-            console.log(`[AMap Card] API 响应:`, response);
             if (Array.isArray(response) && response.length > 0) {
                 return response[0] || [];
             }
@@ -1948,12 +1925,8 @@ let AMapCard = class AMapCard extends i {
                 if (gcjLng && gcjLat) {
                     path.push([gcjLng, gcjLat]);
                 }
-                else {
-                    console.warn(`[AMap Card] 坐标转换失败:`, state);
-                }
             }
         }
-        console.log(`[AMap Card] 成功处理 ${path.length} 个坐标点`);
         return path;
     }
     _createEntityMarker(AMap, stateObj, entityId) {
@@ -2059,6 +2032,9 @@ AMapCard.styles = amapCardStyle();
 __decorate([
     n({ attribute: false })
 ], AMapCard.prototype, "hass", void 0);
+__decorate([
+    n({ attribute: false })
+], AMapCard.prototype, "editMode", void 0);
 __decorate([
     n()
 ], AMapCard.prototype, "_config", void 0);

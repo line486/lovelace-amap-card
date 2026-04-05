@@ -2,30 +2,31 @@ import { css } from "lit";
 
 export function amapCardStyle() {
   return css`
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-      min-width: 120px;
-      min-height: 120px;
-    }
-
     .amap-card {
       overflow: hidden;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      box-sizing: border-box;
-      width: 100%;
+    }
+
+    #root {
+      position: relative;
       height: 100%;
     }
 
     #amap {
-      padding: 0;
-      margin: 0;
       width: 100%;
       height: 100%;
-      min-height: 120px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACC2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOlJlc29sdXRpb25Vbml0PjI8L3RpZmY6UmVzb2x1dGlvblVuaXQ+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjE8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDx0aWZmOlBob3RvbWV0cmljSW50ZXJwcmV0YXRpb24+MjwvdGlmZjpQaG90b21ldHJpY0ludGVycHJldGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KD0UqkwAAAf1JREFUeAHtmtGpAkEQBE9TMAi/zMb8MzCGU/97Ye8QunDrfQ7qNFUMS8Pbtom/fd8fEx/b/FymdIDL85p/wmmLgEJa5Ad7FTIA0xorpEV+sFchAzCtsUJa5Ad7FTIA0xorpEV+sPcyW1oG33f8WwL3qZ+blebnMs4DXGzqGWFv6hvSYx83KyRi6Q0V0mMfNyskYukNFdJjHzcrJGLpDRXSYx8329QjltrQpp7QH2jWv/5fA5t6EtKc+YY06YfdCglQmiOFNOmH3QoJUJojhTTph90KCVCaI4U06YfdNvUApTiyqSf4NvVEZdGZbwhMvEIUAiMAi+OFKARGABbHC1EIjAAsjk2dJcSmnnzY1BOVRWc+6jDxClEIjAAsjheiEBgBWBwvRCEwArA4/9LUbx+uLxjbM3Fs6omaTT1RWXTmow4TrxCFwAjA4nghCoERgMXxQhQCIwCL8y9NHYb1dBybekJnU09UFp35qMPEK0QhMAKwOF6IQmAEYHG8EIXACMDi2NRZQmzqyYdNPVFZdOajDhOvEIXACMDieCEKgRGAxfFCFAIjAItjU2cJsaknHzb1RGXRmY86TLxCFAIjAIvjhSgERgAWxwtRCIwALI5NnSXEpp582NQTlUVnPuow8QpRCIwALI4XohAYAVgcL0QhMAKwON+m/oRlWjrOG2SeYNIaKe7fAAAAAElFTkSuQmCC);
+      touch-action: none;
+      overflow: hidden;
+      -ms-touch-action: none;
     }
 
     .amap-custom {
@@ -37,15 +38,6 @@ export function amapCardStyle() {
     #amap img {
       max-width: none !important;
       max-height: none !important;
-    }
-
-    #amap {
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACC2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOlJlc29sdXRpb25Vbml0PjI8L3RpZmY6UmVzb2x1dGlvblVuaXQ+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjE8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDx0aWZmOlBob3RvbWV0cmljSW50ZXJwcmV0YXRpb24+MjwvdGlmZjpQaG90b21ldHJpY0ludGVycHJldGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KD0UqkwAAAf1JREFUeAHtmtGpAkEQBE9TMAi/zMb8MzCGU/97Ye8QunDrfQ7qNFUMS8Pbtom/fd8fEx/b/FymdIDL85p/wmmLgEJa5Ad7FTIA0xorpEV+sFchAzCtsUJa5Ad7FTIA0xorpEV+sPcyW1oG33f8WwL3qZ+blebnMs4DXGzqGWFv6hvSYx83KyRi6Q0V0mMfNyskYukNFdJjHzcrJGLpDRXSYx8329QjltrQpp7QH2jWv/5fA5t6EtKc+YY06YfdCglQmiOFNOmH3QoJUJojhTTph90KCVCaI4U06YfdNvUApTiyqSf4NvVEZdGZbwhMvEIUAiMAi+OFKARGABbHC1EIjAAsjk2dJcSmnnzY1BOVRWc+6jDxClEIjAAsjheiEBgBWBwvRCEwArA4/9LUbx+uLxjbM3Fs6omaTT1RWXTmow4TrxCFwAjA4nghCoERgMXxQhQCIwCL8y9NHYb1dBybekJnU09UFp35qMPEK0QhMAKwOF6IQmAEYHG8EIXACMDi2NRZQmzqyYdNPVFZdOajDhOvEIXACMDieCEKgRGAxfFCFAIjAItjU2cJsaknHzb1RGXRmY86TLxCFAIjAIvjhSgERgAWxwtRCIwALI5NnSXEpp582NQTlUVnPuow8QpRCIwALI4XohAYAVgcL0QhMAKwON+m/oRlWjrOG2SeYNIaKe7fAAAAAElFTkSuQmCC);
-      //background-color: #f1f1f1;
-      touch-action: none;
-      position: relative;
-      overflow: hidden;
-      -ms-touch-action: none;
     }
 
     .amap-drags,
