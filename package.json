@@ -11,7 +11,7 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sugarscat/lovelace-amap-card.git"
+    "url": "https://github.com/line486/lovelace-amap-card.git"
   },
   "license": "MIT",
   "dependencies": {
