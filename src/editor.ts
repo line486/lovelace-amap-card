@@ -2,59 +2,43 @@ import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { HomeAssistant, LovelaceCardEditor } from "custom-card-helpers";
 import { AMapCardConfig } from "./types";
-import { AMAP_CONTROLS, AMAP_THEMES } from "./const";
+import { AMAP_CONTROLS, AMAP_THEMES, DEFAULT_CONFIG } from "./const";
 import setupCustomLocalize from "./localize";
-
-export const defaultConfig: AMapCardConfig = {
-  key: "",
-  type: "",
-  security: "",
-  lightTheme: "normal",
-  darkTheme: "dark",
-  controls: ["ToolBar"],
-  viewMode: "2D",
-  pitch: 30,
-  zoom: 15,
-  entities: [],
-  showHistory: false,
-  historyHours: 24,
-  historyWidth: 3,
-};
 
 @customElement("amap-card-editor")
 export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config?: AMapCardConfig;
-  private _isInitialized = false;
+  private _localize?: (key: string) => string;
+  private _localizeHass?: HomeAssistant;
+
+  /** 兼容旧格式：对象数组 → 字符串数组 */
+  private _normalizeEntities(entities: unknown): string[] {
+    if (!Array.isArray(entities)) return [];
+    return entities.map((e: unknown) =>
+      typeof e === "string" ? e : (e as { entity: string }).entity
+    );
+  }
 
   setConfig(config: AMapCardConfig): void {
-    if (!this._isInitialized) {
-      // 初始化默认值，并确保 entities 是正确的格式
-      this._config = {
-        ...defaultConfig,
-        ...config,
-        // 兼容旧格式：如果是对象数组，提取 entity 字段
-        entities: Array.isArray(config.entities)
-          ? config.entities.map((e: any) => (typeof e === "string" ? e : e.entity))
-          : [],
-      };
-      this._isInitialized = true;
-    } else {
-      // 确保更新时 entities 也是正确格式
-      this._config = {
-        ...config,
-        entities: Array.isArray(config.entities)
-          ? config.entities.map((e: any) => (typeof e === "string" ? e : e.entity))
-          : [],
-      };
-    }
+    this._config = {
+      ...DEFAULT_CONFIG,
+      ...config,
+      entities: this._normalizeEntities(config.entities),
+    } as AMapCardConfig;
   }
 
   protected render() {
     if (!this.hass || !this._config) return html``;
-    const customLocalize = setupCustomLocalize(this.hass);
 
-    const schema: any[] = [
+    // 仅当 hass 变化时重新创建 localize
+    if (this._localizeHass !== this.hass) {
+      this._localize = setupCustomLocalize(this.hass);
+      this._localizeHass = this.hass;
+    }
+    const customLocalize = this._localize!;
+
+    const schema: Record<string, unknown>[] = [
       {
         name: "key",
         selector: { text: { type: "password" } },
@@ -138,7 +122,7 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
           .hass=${this.hass}
           .schema=${schema}
           .data=${this._config}
-          .computeLabel=${(schema: any) => schema.label}
+          .computeLabel=${(schema: Record<string, unknown>) => (schema as { label: string }).label}
           @value-changed=${this._handleValueChanged}
         ></ha-form>
       </div>

@@ -10,7 +10,11 @@ Home Assistant 的高德地图卡片。
 
 ### 使用 [HACS](https://hacs.xyz/) 安装
 
-HACS > 右上角三个点 > Custom repositories > Repository: https://github.com/line486/lovelace-amap-card.git & Category or Type: Dashboard > ADD > 点击 HACS 的 New 或 Available for download 分类下的“高德地图卡片”，进入集成详情页 > DOWNLOAD
+1. HACS > 右上角三个点 > Custom repositories > 输入以下信息
+2. Repository: `https://github.com/line486/lovelace-amap-card.git`
+3. Category or Type: Dashboard
+4. 点击ADD
+5. 点击 HACS 的 New 或 Available for download 分类下的“高德地图卡片”，进入集成详情页 > DOWNLOAD
 
 ### 手动安装
 

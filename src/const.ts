@@ -49,3 +49,20 @@ export const AMAP_CONTROLS_POSE = {
   },
   MapType: null,
 };
+
+/** 统一默认配置 — 所有组件共享 */
+export const DEFAULT_CONFIG = {
+  key: "",
+  type: "",
+  security: "",
+  lightTheme: "normal" as const,
+  darkTheme: "dark" as const,
+  controls: ["ToolBar"] as const,
+  viewMode: "2D" as const,
+  pitch: 30,
+  zoom: 15,
+  entities: [],
+  showHistory: false,
+  historyHours: 24,
+  historyWidth: 3,
+};

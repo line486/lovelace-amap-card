@@ -2,14 +2,12 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { HomeAssistant, LovelaceCard, LovelaceCardEditor } from "custom-card-helpers";
 import AMapLoader from "@amap/amap-jsapi-loader";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 import { wgs84togcj02 } from "coordtransform";
 import { AMapCardConfig, AMapTheme } from "./types";
 import { getMapControls, getMapStyle } from "./utils";
 import setupCustomLocalize from "./localize";
 import { amapCardStyle } from "./styles";
-import { AMAP_CONTROLS_POSE } from "./const";
+import { AMAP_CONTROLS_POSE, DEFAULT_CONFIG } from "./const";
 
 // This puts your card into the UI card picker dialog
 const _getCardInfo = () => {
@@ -21,8 +19,8 @@ const _getCardInfo = () => {
     description: isZh ? "在 Home Assistant 中显示高德地图。" : "Display AMap in Home Assistant.",
   };
 };
-(window as any).customCards = (window as any).customCards || [];
-(window as any).customCards.push(_getCardInfo());
+window.customCards = window.customCards || [];
+window.customCards.push(_getCardInfo());
 
 @customElement("amap-card")
 export class AMapCard extends LitElement implements LovelaceCard {
@@ -32,8 +30,10 @@ export class AMapCard extends LitElement implements LovelaceCard {
   @property({ attribute: false }) public editMode?: boolean;
   @property() private _config!: AMapCardConfig;
 
-  private map?: any;
+  private map?: AMap.Map;
   private _mapLoaded = false;
+  private _localize?: (key: string) => string;
+  private _localizeHass?: HomeAssistant;
 
   setConfig(config: AMapCardConfig): void {
     this._config = config;
@@ -44,7 +44,6 @@ export class AMapCard extends LitElement implements LovelaceCard {
   }
 
   static getStubConfig(hass: HomeAssistant) {
-    // Find a power entity for default
     const sampleEntities = Object.keys(hass.states).filter((entityId) => {
       const entity = hass.states[entityId];
       return (
@@ -55,7 +54,6 @@ export class AMapCard extends LitElement implements LovelaceCard {
       );
     });
 
-    // Sample config
     return {
       entities: sampleEntities.slice(0, 1),
     };
@@ -71,7 +69,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
       min_rows: 2,
     };
   }
-  
+
   /**
    * 获取视图类型
    */
@@ -88,13 +86,12 @@ export class AMapCard extends LitElement implements LovelaceCard {
    * 是否在配置弹窗的预览界面中
    */
   private get _isPreview(): boolean {
-    // 检测是否在卡片配置弹窗的预览容器中
     return !!this.closest(".preview") || !!this.closest(".element-preview");
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this._loadMap().then();
+    this._loadMap().catch(console.error);
   }
 
   disconnectedCallback() {
@@ -108,23 +105,21 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
   protected firstUpdated() {
     if (!this._mapLoaded) {
-      this._loadMap().then();
+      this._loadMap().catch(console.error);
     }
   }
 
-  protected updated(changedProperties: Map<string, any>) {
+  protected updated(changedProperties: Map<string, unknown>) {
     super.updated(changedProperties);
-    // 当配置变化时重新加载地图
     if (changedProperties.has("_config")) {
       this._mapLoaded = false;
       if (this.map) {
         this.map.destroy();
         this.map = undefined;
       }
-      // 延迟加载地图，确保 DOM 已更新
       setTimeout(() => {
         if (this._config && this._config.key && this._config.security) {
-          this._loadMap().then();
+          this._loadMap().catch(console.error);
         }
       }, 100);
     }
@@ -135,7 +130,13 @@ export class AMapCard extends LitElement implements LovelaceCard {
       return html``;
     }
 
-    const customLocalize = setupCustomLocalize(this.hass);
+    // 仅当 hass 变化时重新创建 localize
+    if (this._localizeHass !== this.hass) {
+      this._localize = setupCustomLocalize(this.hass);
+      this._localizeHass = this.hass;
+    }
+    const customLocalize = this._localize!;
+
     if (!this._config) {
       return html`<ha-card>
         <ha-alert alert-type="error">${customLocalize("card.config_not_found")}</ha-alert>
@@ -165,7 +166,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
       return;
     }
 
-    (window as any)._AMapSecurityConfig = {
+    window._AMapSecurityConfig = {
       securityJsCode: this._config.security,
     };
 
@@ -177,14 +178,13 @@ export class AMapCard extends LitElement implements LovelaceCard {
       });
 
       this.map = new AMap.Map(this.shadowRoot!.getElementById("amap")!, {
-        pitch: this._config.pitch || 30, //地图俯仰角度，有效范围 0 度- 83 度
-        viewMode: this._config.viewMode || "2D",
-        zoom: this._config.zoom || 12,
+        pitch: this._config.pitch ?? DEFAULT_CONFIG.pitch,
+        viewMode: this._config.viewMode ?? DEFAULT_CONFIG.viewMode,
+        zoom: this._config.zoom ?? DEFAULT_CONFIG.zoom,
         mapStyle: getMapStyle(this._getTheme()) ?? "amap://styles/normal",
-        rotateEnable: true, //是否开启地图旋转交互 鼠标右键 + 鼠标画圈移动 或 键盘Ctrl + 鼠标左键画圈移动
-        pitchEnable: true, //是否开启地图倾斜交互 鼠标右键 + 鼠标上下移动或键盘Ctrl + 鼠标左键上下移动
-        center: [116.397428, 39.90923], //地图中心点
-        // 性能优化配置
+        rotateEnable: true,
+        pitchEnable: true,
+        center: [116.397428, 39.90923],
         WebGLParams: {
           preserveDrawingBuffer: false,
         },
@@ -193,11 +193,11 @@ export class AMapCard extends LitElement implements LovelaceCard {
       // 添加控件
       if (this._config.controls.length > 0) {
         this._config.controls.forEach((control) => {
-          this.map.addControl(new AMap[control](AMAP_CONTROLS_POSE[control] ?? {}));
+          this.map!.addControl(new AMap[control](AMAP_CONTROLS_POSE[control] ?? {}));
         });
       }
 
-      const fitView: any[] = [];
+      const fitView: AMap.Overlay[] = [];
 
       // 如果开启了历史轨迹，先绘制轨迹
       if (this._config.showHistory) {
@@ -211,8 +211,8 @@ export class AMapCard extends LitElement implements LovelaceCard {
           const marker = this._createEntityMarker(AMap, stateObj, entityId);
           const circle = this._createEntityCircle(AMap, stateObj, entityId);
 
-          this.map.add(marker);
-          this.map.add(circle);
+          this.map!.add(marker);
+          this.map!.add(circle);
           fitView.push(circle);
         }
       });
@@ -224,8 +224,8 @@ export class AMapCard extends LitElement implements LovelaceCard {
     }
   }
 
-  private async _loadHistoryTracks(AMap: any, fitView: any[]) {
-    const historyHours = this._config.historyHours || 24;
+  private async _loadHistoryTracks(AMapNS: typeof AMap, fitView: AMap.Overlay[]) {
+    const historyHours = this._config.historyHours ?? DEFAULT_CONFIG.historyHours;
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - historyHours * 60 * 60 * 1000);
 
@@ -248,11 +248,10 @@ export class AMapCard extends LitElement implements LovelaceCard {
           continue;
         }
 
-        // 使用默认颜色
         const color = "#1791fc";
-        const width = this._config.historyWidth || 3;
+        const width = this._config.historyWidth ?? DEFAULT_CONFIG.historyWidth;
 
-        const polyline = new AMap.Polyline({
+        const polyline = new AMapNS.Polyline({
           path: path,
           strokeColor: color,
           strokeWeight: width,
@@ -261,7 +260,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
           lineCap: "round",
         });
 
-        this.map.add(polyline);
+        this.map!.add(polyline);
         fitView.push(polyline);
       } catch (error) {
         console.error(`[AMap Card] 加载 ${entityId} 的历史数据失败:`, error);
@@ -273,15 +272,14 @@ export class AMapCard extends LitElement implements LovelaceCard {
     entityId: string,
     startTime: Date,
     endTime: Date
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     const startISO = startTime.toISOString();
     const endISO = endTime.toISOString();
 
-    // 使用 Home Assistant 的 history API
     const path = `history/period/${startISO}?filter_entity_id=${entityId}&end_time=${endISO}`;
 
     try {
-      const response = await (this.hass as any).callApi("GET", path);
+      const response = await (this.hass as unknown as HomeAssistantWithApi).callApi("GET", path);
 
       if (Array.isArray(response) && response.length > 0) {
         return response[0] || [];
@@ -293,16 +291,14 @@ export class AMapCard extends LitElement implements LovelaceCard {
     }
   }
 
-  private _processHistoryData(historyData: any[]): any[] {
+  private _processHistoryData(historyData: Record<string, unknown>[]): [number, number][] {
     const path: [number, number][] = [];
 
     for (const state of historyData) {
-      if (state.attributes && state.attributes.latitude && state.attributes.longitude) {
-        const [gcjLng, gcjLat] = wgs84togcj02(
-          state.attributes.longitude,
-          state.attributes.latitude
-        );
-        if (gcjLng && gcjLat) {
+      const attrs = state.attributes as Record<string, unknown> | undefined;
+      if (attrs && attrs.latitude && attrs.longitude) {
+        const [gcjLng, gcjLat] = wgs84togcj02(attrs.longitude as number, attrs.latitude as number);
+        if (Number.isFinite(gcjLng) && Number.isFinite(gcjLat)) {
           path.push([gcjLng, gcjLat]);
         }
       }
@@ -311,13 +307,15 @@ export class AMapCard extends LitElement implements LovelaceCard {
     return path;
   }
 
-  private _createEntityMarker(AMap: any, stateObj: any, entityId: string) {
-    const [gcjLng, gcjLat] = wgs84togcj02(
-      stateObj.attributes.longitude,
-      stateObj.attributes.latitude
-    );
+  private _createEntityMarker(
+    AMapNS: typeof AMap,
+    stateObj: Record<string, unknown>,
+    entityId: string
+  ) {
+    const attrs = stateObj.attributes as Record<string, unknown>;
+    const [gcjLng, gcjLat] = wgs84togcj02(attrs.longitude as number, attrs.latitude as number);
 
-    const imgHtml = this._generateIconHtml(stateObj);
+    const imgHtml = this._generateIconHtml(attrs);
     const markerContent = `
       <div
         style="
@@ -334,11 +332,11 @@ export class AMapCard extends LitElement implements LovelaceCard {
         ${imgHtml}
       </div>
     `;
-    const marker = new AMap.Marker({
+    const marker = new AMapNS.Marker({
       position: [gcjLng, gcjLat],
-      title: stateObj.attributes.friendly_name || entityId,
+      title: (attrs.friendly_name as string) || entityId,
       content: markerContent,
-      offset: new AMap.Pixel(-20, -20),
+      offset: new AMapNS.Pixel(-20, -20),
     });
 
     marker.on("click", () => {
@@ -348,16 +346,18 @@ export class AMapCard extends LitElement implements LovelaceCard {
     return marker;
   }
 
-  private _createEntityCircle(AMap: any, stateObj: any, entityId: string) {
-    const [gcjLng, gcjLat] = wgs84togcj02(
-      stateObj.attributes.longitude,
-      stateObj.attributes.latitude
-    );
+  private _createEntityCircle(
+    AMapNS: typeof AMap,
+    stateObj: Record<string, unknown>,
+    entityId: string
+  ) {
+    const attrs = stateObj.attributes as Record<string, unknown>;
+    const [gcjLng, gcjLat] = wgs84togcj02(attrs.longitude as number, attrs.latitude as number);
 
-    const center = new AMap.LngLat(gcjLng, gcjLat);
-    const radius = stateObj.attributes.radius || stateObj.attributes.gps_accuracy || 10;
+    const center = new AMapNS.LngLat(gcjLng, gcjLat);
+    const radius = (attrs.radius as number) || (attrs.gps_accuracy as number) || 10;
 
-    const circle = new AMap.Circle({
+    const circle = new AMapNS.Circle({
       center: center,
       radius: radius,
       borderWeight: 0,
@@ -396,23 +396,22 @@ export class AMapCard extends LitElement implements LovelaceCard {
     this.dispatchEvent(event);
   }
 
-  private _generateIconHtml(stateObj: any) {
+  private _generateIconHtml(attrs: Record<string, unknown>): string {
     let imgHtml = ` <ha-icon icon="mdi:map-marker-radius">icon</ha-icon> `;
-    if (stateObj.attributes.entity_picture) {
+    if (attrs.entity_picture) {
       imgHtml = `
       <img
-        src="${stateObj.attributes.entity_picture}"
+        src="${attrs.entity_picture}"
         alt=""
         style="width: 100%; height: 100%; object-fit: cover;"
       />
     `;
-    } else if (stateObj.attributes.icon) {
-      const attributes = stateObj.attributes;
+    } else if (attrs.icon) {
       imgHtml = `
-      <ha-icon icon="${attributes.icon}" 
+      <ha-icon icon="${attrs.icon}"
         style="
-        --icon-primary-color: ${attributes.color}; 
-        --mdc-icon-size: ${attributes.size - 10}px;
+        --icon-primary-color: ${attrs.color};
+        --mdc-icon-size: ${(attrs.size as number) - 10}px;
         "
       >icon</ha-icon>
       `;
@@ -421,7 +420,6 @@ export class AMapCard extends LitElement implements LovelaceCard {
   }
 
   private _getTheme(): AMapTheme {
-    // 判断是否自动，根据系统主题切换
     const isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     return isDark ? this._config.darkTheme : this._config.lightTheme;
   }
