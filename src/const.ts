@@ -50,6 +50,9 @@ export const AMAP_CONTROLS_POSE = {
   MapType: null,
 };
 
+/** 实体默认颜色 */
+export const ENTITY_DEFAULT_COLOR = "#1791fc";
+
 /** 统一默认配置 — 所有组件共享 */
 export const DEFAULT_CONFIG = {
   key: "",

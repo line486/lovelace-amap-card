@@ -1,6 +1,6 @@
 {
   "name": "lovelace-amap-card",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Lovelace AMap Card for Home Assistant.",
   "main": "index.js",
   "scripts": {

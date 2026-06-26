@@ -4,10 +4,10 @@ import { HomeAssistant, LovelaceCard, LovelaceCardEditor } from "custom-card-hel
 import AMapLoader from "@amap/amap-jsapi-loader";
 import { wgs84togcj02 } from "coordtransform";
 import { AMapCardConfig, AMapTheme } from "./types";
-import { getMapControls, getMapStyle } from "./utils";
+import { getMapControls, getMapStyle, extractPictureColor } from "./utils";
 import setupCustomLocalize from "./localize";
 import { amapCardStyle } from "./styles";
-import { AMAP_CONTROLS_POSE, DEFAULT_CONFIG } from "./const";
+import { AMAP_CONTROLS_POSE, DEFAULT_CONFIG, ENTITY_DEFAULT_COLOR } from "./const";
 
 // This puts your card into the UI card picker dialog
 const _getCardInfo = () => {
@@ -220,22 +220,50 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
       if (gen !== this._mapGen || !this.map) return;
 
-      this._config.entities.forEach((entityId) => {
+      for (const entityId of this._config.entities) {
+        if (gen !== this._mapGen || !this.map) return;
         const stateObj = this.hass?.states[entityId];
         if (stateObj && stateObj.attributes.latitude && stateObj.attributes.longitude) {
           const marker = this._createEntityMarker(AMap, stateObj, entityId);
-          const circle = this._createEntityCircle(AMap, stateObj, entityId);
+          const circle = await this._createEntityCircle(AMap, stateObj, entityId);
 
-          this.map!.add(marker);
-          this.map!.add(circle);
+          if (gen !== this._mapGen || !this.map) return;
+          this.map.add(marker);
+          this.map.add(circle);
           fitView.push(circle);
         }
-      });
+      }
       this.map.setFitView(fitView);
       this._mapLoaded = true;
     } catch (e) {
       console.error("[AMap Card] 加载地图失败:", e);
     }
+  }
+
+  /**
+   * 异步解析实体颜色：entity_settings.color → entity_picture主题色 → entity.attributes.color → 默认色
+   */
+  private async _resolveEntityColorAsync(
+    entityId: string,
+    attrs?: Record<string, unknown>
+  ): Promise<string> {
+    const setting = this._config.entity_settings?.[entityId]?.color;
+    if (setting) return setting;
+
+    const attrColor = attrs?.color as string | undefined;
+    if (attrColor) return attrColor;
+
+    const picture = attrs?.entity_picture as string | undefined;
+    if (picture) {
+      try {
+        const color = await extractPictureColor(picture);
+        if (color) return color;
+      } catch {
+        // 跨域图片无法读取像素时静默降级
+      }
+    }
+
+    return ENTITY_DEFAULT_COLOR;
   }
 
   private async _loadHistoryTracks(AMapNS: typeof AMap, fitView: AMap.Overlay[], gen: number) {
@@ -261,7 +289,10 @@ export class AMapCard extends LitElement implements LovelaceCard {
         const path = this._processHistoryData(historyData);
         if (path.length < 2) continue;
 
-        const color = settings?.color ?? (stateObj.attributes.color as string) ?? "#1791fc";
+        const color = await this._resolveEntityColorAsync(
+          entityId,
+          stateObj.attributes as Record<string, unknown>
+        );
         const width = this._config.historyWidth ?? DEFAULT_CONFIG.historyWidth;
 
         const polyline = new AMapNS.Polyline({
@@ -359,7 +390,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
     return marker;
   }
 
-  private _createEntityCircle(
+  private async _createEntityCircle(
     AMapNS: typeof AMap,
     stateObj: Record<string, unknown>,
     entityId: string
@@ -370,16 +401,18 @@ export class AMapCard extends LitElement implements LovelaceCard {
     const center = new AMapNS.LngLat(gcjLng, gcjLat);
     const radius = (attrs.radius as number) || (attrs.gps_accuracy as number) || 10;
 
+    const color = await this._resolveEntityColorAsync(entityId, attrs);
+
     const circle = new AMapNS.Circle({
       center: center,
       radius: radius,
       borderWeight: 0,
-      strokeColor: "#1791fc",
+      strokeColor: color,
       strokeOpacity: 0.8,
       strokeWeight: 3,
       fillOpacity: 0.2,
       strokeDasharray: [10, 10],
-      fillColor: "#1791fc",
+      fillColor: color,
       cursor: "pointer",
     });
 
