@@ -230,6 +230,9 @@ export class AMapCard extends LitElement implements LovelaceCard {
     const startTime = new Date(endTime.getTime() - historyHours * 60 * 60 * 1000);
 
     for (const entityId of this._config.entities) {
+      const settings = this._config.entity_settings?.[entityId];
+      if (settings?.show_history === false) continue;
+
       const stateObj = this.hass!.states[entityId];
       if (!stateObj) {
         continue;
@@ -248,7 +251,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
           continue;
         }
 
-        const color = "#1791fc";
+        const color = settings?.color ?? (stateObj.attributes.color as string) ?? "#1791fc";
         const width = this._config.historyWidth ?? DEFAULT_CONFIG.historyWidth;
 
         const polyline = new AMapNS.Polyline({

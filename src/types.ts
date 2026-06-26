@@ -5,6 +5,11 @@ export type AMapTheme = (typeof AMAP_THEMES)[number];
 
 export type AMapControl = (typeof AMAP_CONTROLS)[number];
 
+export interface EntityConfig {
+  show_history?: boolean;
+  color?: string;
+}
+
 export interface AMapCardConfig extends LovelaceCardConfig {
   type: string;
   key: string;
@@ -16,6 +21,7 @@ export interface AMapCardConfig extends LovelaceCardConfig {
   controls: AMapControl[];
   zoom: number;
   entities: string[];
+  entity_settings?: Record<string, EntityConfig>;
   showHistory?: boolean;
   historyHours?: number;
   historyWidth?: number;

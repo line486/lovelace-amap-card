@@ -45,7 +45,8 @@
     "history": {
       "showHistory": "Show History Track",
       "hours": "History Duration (Hours)",
-      "width": "Track Line Width"
+      "width": "Track Line Width",
+      "entitySettings": "Entity Track Settings"
     }
   }
 }
