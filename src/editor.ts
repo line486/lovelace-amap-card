@@ -132,32 +132,40 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
         selector: { select: { options: ["2D", "3D"] } },
         label: customLocalize("editor.appearance.viewMode"),
       },
-      {
-        name: "pitch",
-        selector: {
-          number: { min: 0, max: 83, step: 1, mode: "slider" },
-        },
-        label: customLocalize("editor.appearance.pitch"),
-      },
+      ...(this._config.viewMode === "3D"
+        ? [
+            {
+              name: "pitch",
+              selector: {
+                number: { min: 0, max: 83, step: 1, mode: "slider" },
+              },
+              label: customLocalize("editor.appearance.pitch"),
+            },
+          ]
+        : []),
       {
         name: "showHistory",
         selector: { boolean: {} },
         label: customLocalize("editor.history.showHistory"),
       },
-      {
-        name: "historyHours",
-        selector: {
-          number: { min: 1, max: 168, step: 1, mode: "slider" },
-        },
-        label: customLocalize("editor.history.hours"),
-      },
-      {
-        name: "historyWidth",
-        selector: {
-          number: { min: 1, max: 10, step: 1, mode: "slider" },
-        },
-        label: customLocalize("editor.history.width"),
-      },
+      ...(this._config.showHistory
+        ? [
+            {
+              name: "historyHours",
+              selector: {
+                number: { min: 1, max: 168, step: 1, mode: "slider" },
+              },
+              label: customLocalize("editor.history.hours"),
+            },
+            {
+              name: "historyWidth",
+              selector: {
+                number: { min: 1, max: 10, step: 1, mode: "slider" },
+              },
+              label: customLocalize("editor.history.width"),
+            },
+          ]
+        : []),
       {
         name: "entities",
         selector: { entity: { multiple: true, domain: ["zone", "device_tracker", "person"] } },
@@ -183,14 +191,18 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
               <div class="entity-settings-row">
                 <span class="entity-settings-label">${name}</span>
                 <div class="entity-settings-controls">
-                  <div class="color-swatch" style="background-color: ${color}">
-                    <input
-                      type="color"
-                      .value=${color}
-                      @input=${(ev: Event) =>
-                        this._updateEntitySetting(entityId, "color", (ev.target as HTMLInputElement).value)}
-                    />
-                  </div>
+                  ${showHistory
+                    ? html`
+                        <div class="color-swatch" style="background-color: ${color}">
+                          <input
+                            type="color"
+                            .value=${color}
+                            @input=${(ev: Event) =>
+                              this._updateEntitySetting(entityId, "color", (ev.target as HTMLInputElement).value)}
+                          />
+                        </div>
+                      `
+                    : ""}
                   <ha-switch
                     .checked=${showHistory}
                     @change=${(ev: Event) =>

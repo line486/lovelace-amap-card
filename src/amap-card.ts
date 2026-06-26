@@ -32,6 +32,8 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
   private map?: AMap.Map;
   private _mapLoaded = false;
+  private _mapGen = 0;
+  private _reloadTimer?: ReturnType<typeof setTimeout>;
   private _localize?: (key: string) => string;
   private _localizeHass?: HomeAssistant;
 
@@ -96,6 +98,10 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    if (this._reloadTimer) {
+      clearTimeout(this._reloadTimer);
+      this._reloadTimer = undefined;
+    }
     if (this.map) {
       this.map.destroy();
       this.map = undefined;
@@ -103,25 +109,20 @@ export class AMapCard extends LitElement implements LovelaceCard {
     }
   }
 
-  protected firstUpdated() {
-    if (!this._mapLoaded) {
-      this._loadMap().catch(console.error);
-    }
-  }
-
   protected updated(changedProperties: Map<string, unknown>) {
     super.updated(changedProperties);
     if (changedProperties.has("_config")) {
-      this._mapLoaded = false;
-      if (this.map) {
-        this.map.destroy();
-        this.map = undefined;
-      }
-      setTimeout(() => {
-        if (this._config && this._config.key && this._config.security) {
-          this._loadMap().catch(console.error);
+      if (this._reloadTimer) clearTimeout(this._reloadTimer);
+      this._reloadTimer = setTimeout(() => {
+        this._reloadTimer = undefined;
+        this._mapLoaded = false;
+        this._mapGen++;
+        if (this.map) {
+          this.map.destroy();
+          this.map = undefined;
         }
-      }, 100);
+        this._loadMap().catch(console.error);
+      }, 300);
     }
   }
 
@@ -159,11 +160,15 @@ export class AMapCard extends LitElement implements LovelaceCard {
   }
 
   private async _loadMap() {
+    if (!this._config?.key || !this._config.security) return;
     if (this._mapLoaded) return;
 
-    if (!this._config.key || !this._config.security) {
-      console.warn("[AMap Card] 未配置 Key 或安全密钥");
-      return;
+    // 记录本次加载的代次，await 后检查是否已被更新
+    const gen = ++this._mapGen;
+
+    if (this.map) {
+      this.map.destroy();
+      this.map = undefined;
     }
 
     window._AMapSecurityConfig = {
@@ -177,7 +182,12 @@ export class AMapCard extends LitElement implements LovelaceCard {
         plugins: getMapControls(this._config.controls) ?? [],
       });
 
-      this.map = new AMap.Map(this.shadowRoot!.getElementById("amap")!, {
+      if (gen !== this._mapGen) return;
+
+      const mapEl = this.shadowRoot?.getElementById("amap");
+      if (!mapEl) return;
+
+      this.map = new AMap.Map(mapEl, {
         pitch: this._config.pitch ?? DEFAULT_CONFIG.pitch,
         viewMode: this._config.viewMode ?? DEFAULT_CONFIG.viewMode,
         zoom: this._config.zoom ?? DEFAULT_CONFIG.zoom,
@@ -190,23 +200,28 @@ export class AMapCard extends LitElement implements LovelaceCard {
         },
       });
 
+      if (!this.map) return;
+
       // 添加控件
       if (this._config.controls.length > 0) {
         this._config.controls.forEach((control) => {
-          this.map!.addControl(new AMap[control](AMAP_CONTROLS_POSE[control] ?? {}));
+          const Ctor = AMap[control];
+          if (Ctor && this.map) {
+            this.map.addControl(new Ctor(AMAP_CONTROLS_POSE[control] ?? {}));
+          }
         });
       }
 
       const fitView: AMap.Overlay[] = [];
 
-      // 如果开启了历史轨迹，先绘制轨迹
       if (this._config.showHistory) {
-        await this._loadHistoryTracks(AMap, fitView);
+        await this._loadHistoryTracks(AMap, fitView, gen);
       }
 
-      // 添加实体当前位置
+      if (gen !== this._mapGen || !this.map) return;
+
       this._config.entities.forEach((entityId) => {
-        const stateObj = this.hass!.states[entityId];
+        const stateObj = this.hass?.states[entityId];
         if (stateObj && stateObj.attributes.latitude && stateObj.attributes.longitude) {
           const marker = this._createEntityMarker(AMap, stateObj, entityId);
           const circle = this._createEntityCircle(AMap, stateObj, entityId);
@@ -216,7 +231,6 @@ export class AMapCard extends LitElement implements LovelaceCard {
           fitView.push(circle);
         }
       });
-      // 根据覆盖物范围调整视野
       this.map.setFitView(fitView);
       this._mapLoaded = true;
     } catch (e) {
@@ -224,32 +238,28 @@ export class AMapCard extends LitElement implements LovelaceCard {
     }
   }
 
-  private async _loadHistoryTracks(AMapNS: typeof AMap, fitView: AMap.Overlay[]) {
+  private async _loadHistoryTracks(AMapNS: typeof AMap, fitView: AMap.Overlay[], gen: number) {
     const historyHours = this._config.historyHours ?? DEFAULT_CONFIG.historyHours;
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - historyHours * 60 * 60 * 1000);
 
     for (const entityId of this._config.entities) {
+      if (gen !== this._mapGen || !this.map) return;
+
       const settings = this._config.entity_settings?.[entityId];
       if (settings?.show_history === false) continue;
 
-      const stateObj = this.hass!.states[entityId];
-      if (!stateObj) {
-        continue;
-      }
+      const stateObj = this.hass?.states[entityId];
+      if (!stateObj) continue;
 
       try {
         const historyData = await this._fetchHistoryData(entityId, startTime, endTime);
 
-        if (!historyData || historyData.length === 0) {
-          continue;
-        }
+        if (gen !== this._mapGen || !this.map) return;
+        if (!historyData || historyData.length === 0) continue;
 
         const path = this._processHistoryData(historyData);
-
-        if (path.length < 2) {
-          continue;
-        }
+        if (path.length < 2) continue;
 
         const color = settings?.color ?? (stateObj.attributes.color as string) ?? "#1791fc";
         const width = this._config.historyWidth ?? DEFAULT_CONFIG.historyWidth;
@@ -263,7 +273,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
           lineCap: "round",
         });
 
-        this.map!.add(polyline);
+        this.map.add(polyline);
         fitView.push(polyline);
       } catch (error) {
         console.error(`[AMap Card] 加载 ${entityId} 的历史数据失败:`, error);
