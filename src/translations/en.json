@@ -29,6 +29,7 @@
       },
       "viewMode": "View Mode",
       "pitch": "Map Pitch Angle (3D)",
+      "rotateEnable": "Enable Rotation",
       "zoom": "Zoom",
       "control": {
         "title": "Control",

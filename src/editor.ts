@@ -146,6 +146,11 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
           ]
         : []),
       {
+        name: "rotateEnable",
+        selector: { boolean: {} },
+        label: customLocalize("editor.appearance.rotateEnable"),
+      },
+      {
         name: "showHistory",
         selector: { boolean: {} },
         label: customLocalize("editor.history.showHistory"),

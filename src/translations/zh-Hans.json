@@ -29,6 +29,7 @@
       },
       "viewMode": "视图模式",
       "pitch": "地图俯仰角度(3D)",
+      "rotateEnable": "允许旋转",
       "zoom": "缩放",
       "control": {
         "title": "控件",

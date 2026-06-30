@@ -192,7 +192,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
         viewMode: this._config.viewMode ?? DEFAULT_CONFIG.viewMode,
         zoom: this._config.zoom ?? DEFAULT_CONFIG.zoom,
         mapStyle: getMapStyle(this._getTheme()) ?? "amap://styles/normal",
-        rotateEnable: true,
+        rotateEnable: this._config.rotateEnable ?? DEFAULT_CONFIG.rotateEnable,
         pitchEnable: true,
         center: [116.397428, 39.90923],
         WebGLParams: {

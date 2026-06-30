@@ -63,6 +63,7 @@ export const DEFAULT_CONFIG = {
   controls: ["ToolBar"] as const,
   viewMode: "2D" as const,
   pitch: 30,
+  rotateEnable: true,
   zoom: 15,
   entities: [],
   showHistory: false,

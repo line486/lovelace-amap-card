@@ -16,6 +16,7 @@ export interface AMapCardConfig extends LovelaceCardConfig {
   security: string;
   viewMode: "2D" | "3D";
   pitch: number;
+  rotateEnable?: boolean;
   lightTheme: AMapTheme;
   darkTheme: AMapTheme;
   controls: AMapControl[];
