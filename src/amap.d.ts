@@ -4,12 +4,22 @@
  */
 
 declare namespace AMap {
+  interface TileLayerOptions {
+    zIndex?: number;
+    opacity?: number;
+    autoRefresh?: boolean;
+    interval?: number;
+    show?: boolean;
+  }
+
   interface MapOptions {
     zoom?: number;
     center?: [number, number];
     viewMode?: "2D" | "3D";
     pitch?: number;
     mapStyle?: string;
+    layers?: TileLayer[];
+    features?: string[];
     rotateEnable?: boolean;
     pitchEnable?: boolean;
     WebGLParams?: {
@@ -55,11 +65,23 @@ declare namespace AMap {
     };
   }
 
+  class TileLayer {
+    constructor(options?: TileLayerOptions);
+    static Satellite: typeof TileLayer;
+    static RoadNet: typeof TileLayer;
+    static Traffic: typeof TileLayer;
+    show(): void;
+    hide(): void;
+  }
+
   class Map {
     constructor(el: string | HTMLElement, options?: MapOptions);
-    add(overlay: Overlay | Overlay[]): void;
+    add(overlay: Overlay | TileLayer | Array<Overlay | TileLayer>): void;
+    remove(overlay: Overlay | TileLayer | Array<Overlay | TileLayer>): void;
     addControl(control: unknown): void;
     setFitView(overlays?: Overlay[]): void;
+    setLayers(layers: TileLayer[]): void;
+    getLayers(): TileLayer[];
     destroy(): void;
   }
 

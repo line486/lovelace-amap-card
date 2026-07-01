@@ -32,6 +32,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
   private map?: AMap.Map;
   private _mapLoaded = false;
+  private _traffic?: AMap.TileLayer;
   private _mapGen = 0;
   private _reloadTimer?: ReturnType<typeof setTimeout>;
   private _localize?: (key: string) => string;
@@ -106,6 +107,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
       this.map.destroy();
       this.map = undefined;
       this._mapLoaded = false;
+      this._traffic = undefined;
     }
   }
 
@@ -120,6 +122,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
         if (this.map) {
           this.map.destroy();
           this.map = undefined;
+          this._traffic = undefined;
         }
         this._loadMap().catch(console.error);
       }, 300);
@@ -202,7 +205,7 @@ export class AMapCard extends LitElement implements LovelaceCard {
 
       if (!this.map) return;
 
-      // 添加控件
+      // 添加控件（在 setLayers 之前，确保 MapType 控件不覆盖后续图层设置）
       if (this._config.controls.length > 0) {
         this._config.controls.forEach((control) => {
           const Ctor = AMap[control];
@@ -210,6 +213,29 @@ export class AMapCard extends LitElement implements LovelaceCard {
             this.map.addControl(new Ctor(AMAP_CONTROLS_POSE[control] ?? {}));
           }
         });
+      }
+
+      // 底图图层
+      const mapLayer = this._config.mapLayer ?? DEFAULT_CONFIG.mapLayer;
+      const showRoadNetwork = this._config.showRoadNetwork ?? DEFAULT_CONFIG.showRoadNetwork;
+      const showTraffic = this._config.showTraffic ?? DEFAULT_CONFIG.showTraffic;
+
+      if (mapLayer === "satellite") {
+        const layers: AMap.TileLayer[] = [new AMap.TileLayer.Satellite()];
+        if (showRoadNetwork) {
+          layers.push(new AMap.TileLayer.RoadNet());
+        }
+        this.map.setLayers(layers);
+      }
+
+      // 路况叠加层
+      if (showTraffic) {
+        this._traffic = new AMap.TileLayer.Traffic({
+          autoRefresh: true,
+          interval: 180,
+          show: true,
+        });
+        this.map.add(this._traffic);
       }
 
       const fitView: AMap.Overlay[] = [];

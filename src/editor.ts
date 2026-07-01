@@ -103,32 +103,51 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
         label: customLocalize("editor.api.security"),
       },
       {
-        name: "lightTheme",
-        type: "select",
-        options: AMAP_THEMES.map((item) => [
-          item,
-          customLocalize("editor.appearance.theme.options." + item),
-        ]),
-        label: customLocalize("editor.appearance.theme.mode.light"),
+        name: "entities",
+        selector: { entity: { multiple: true, domain: ["zone", "device_tracker", "person"] } },
+        label: customLocalize("editor.entity"),
       },
       {
-        name: "darkTheme",
+        name: "mapLayer",
         type: "select",
-        options: AMAP_THEMES.map((item) => [
-          item,
-          customLocalize("editor.appearance.theme.options." + item),
-        ]),
-        label: customLocalize("editor.appearance.theme.mode.dark"),
+        options: [
+          ["normal", customLocalize("editor.appearance.mapLayer.normal")],
+          ["satellite", customLocalize("editor.appearance.mapLayer.satellite")],
+        ],
+        label: customLocalize("editor.appearance.mapLayer.title"),
       },
       {
-        name: "controls",
-        type: "multi_select",
-        options: AMAP_CONTROLS.reduce((acc: Record<string, string>, item) => {
-          acc[item] = customLocalize("editor.appearance.control." + item);
-          return acc;
-        }, {}),
-        label: customLocalize("editor.appearance.control.title"),
+        name: "showRoadNetwork",
+        selector: { boolean: {} },
+        label: customLocalize("editor.appearance.showRoadNetwork"),
       },
+      {
+        name: "showTraffic",
+        selector: { boolean: {} },
+        label: customLocalize("editor.appearance.showTraffic"),
+      },
+      ...(this._config.mapLayer !== "satellite"
+        ? [
+            {
+              name: "lightTheme",
+              type: "select",
+              options: AMAP_THEMES.map((item) => [
+                item,
+                customLocalize("editor.appearance.theme.options." + item),
+              ]),
+              label: customLocalize("editor.appearance.theme.mode.light"),
+            },
+            {
+              name: "darkTheme",
+              type: "select",
+              options: AMAP_THEMES.map((item) => [
+                item,
+                customLocalize("editor.appearance.theme.options." + item),
+              ]),
+              label: customLocalize("editor.appearance.theme.mode.dark"),
+            },
+          ]
+        : []),
       {
         name: "viewMode",
         selector: { select: { options: ["2D", "3D"] } },
@@ -149,6 +168,15 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
         name: "rotateEnable",
         selector: { boolean: {} },
         label: customLocalize("editor.appearance.rotateEnable"),
+      },
+      {
+        name: "controls",
+        type: "multi_select",
+        options: AMAP_CONTROLS.reduce((acc: Record<string, string>, item) => {
+          acc[item] = customLocalize("editor.appearance.control." + item);
+          return acc;
+        }, {}),
+        label: customLocalize("editor.appearance.control.title"),
       },
       {
         name: "showHistory",
@@ -173,11 +201,6 @@ export class AMapCardEditor extends LitElement implements LovelaceCardEditor {
             },
           ]
         : []),
-      {
-        name: "entities",
-        selector: { entity: { multiple: true, domain: ["zone", "device_tracker", "person"] } },
-        label: customLocalize("editor.entity"),
-      },
     ];
 
     const renderEntitySettings = () => {

@@ -30,6 +30,13 @@
       "viewMode": "视图模式",
       "pitch": "地图俯仰角度(3D)",
       "rotateEnable": "允许旋转",
+      "mapLayer": {
+        "title": "地图图层",
+        "normal": "标准地图",
+        "satellite": "卫星地图"
+      },
+      "showRoadNetwork": "显示路网",
+      "showTraffic": "显示路况",
       "zoom": "缩放",
       "control": {
         "title": "控件",

@@ -30,6 +30,13 @@
       "viewMode": "View Mode",
       "pitch": "Map Pitch Angle (3D)",
       "rotateEnable": "Enable Rotation",
+      "mapLayer": {
+        "title": "Map Layer",
+        "normal": "Standard Map",
+        "satellite": "Satellite Map"
+      },
+      "showRoadNetwork": "Show Road Network",
+      "showTraffic": "Show Traffic",
       "zoom": "Zoom",
       "control": {
         "title": "Control",

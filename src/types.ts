@@ -17,6 +17,9 @@ export interface AMapCardConfig extends LovelaceCardConfig {
   viewMode: "2D" | "3D";
   pitch: number;
   rotateEnable?: boolean;
+  mapLayer?: "normal" | "satellite";
+  showRoadNetwork?: boolean;
+  showTraffic?: boolean;
   lightTheme: AMapTheme;
   darkTheme: AMapTheme;
   controls: AMapControl[];
